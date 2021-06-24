@@ -1,6 +1,6 @@
 var unirest = require('unirest');
 const Place1 = require('../models/Place1');
-let final = undefined;
+let final;
 
 const test = () => {
   let req = unirest(
@@ -14,7 +14,7 @@ const test = () => {
   });
 
   req.headers({
-    'x-rapidapi-key': '8d14e72241msh06b0af0db962cf8p1f231ejsn283e5f6b468e',
+    'x-rapidapi-key': 'bb84525deemsh8f66346e9e95687p1de53ajsn4f356002ca42',
     'x-rapidapi-host': 'weatherbit-v1-mashape.p.rapidapi.com',
     useQueryString: true,
   });
@@ -24,12 +24,11 @@ const test = () => {
     let hourly = res.body.data;
 
     final = hourly.filter((hour) => {
-      if (hour.precip > 0.4) {
+      if (hour.precip > 0.24) {
         return true;
       }
     });
   });
-  // console.log(final, 1);
   return final;
 };
 
@@ -55,9 +54,7 @@ exports.getPlaces1 = async (req, res, next) => {
   try {
     const places1 = await Place1.find();
     test();
-    return res.status(200).json({
-      data: final ? true : false,
-    });
+    return res.status(200).json(final ? true : false);
   } catch (err) {
     console.log(err);
     res.status(500);
