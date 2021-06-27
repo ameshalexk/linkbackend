@@ -1,36 +1,30 @@
 var unirest = require('unirest');
 const Place1 = require('../models/Place1');
-let final;
 
-const test = () => {
-  let req = unirest(
-    'GET',
-    'https://weatherbit-v1-mashape.p.rapidapi.com/forecast/hourly'
-  );
-  req.query({
-    lat: '29.56',
-    lon: '-95.52',
-    hours: '24',
+function getToken() {
+  return new Promise((resolve, reject) => {
+    unirest
+      .get('https://weatherbit-v1-mashape.p.rapidapi.com/forecast/hourly')
+      .headers({
+        'x-rapidapi-key': 'bb84525deemsh8f66346e9e95687p1de53ajsn4f356002ca42',
+        'x-rapidapi-host': 'weatherbit-v1-mashape.p.rapidapi.com',
+        useQueryString: true,
+      })
+      .query({
+        lat: '29.56',
+        lon: '-95.52',
+        hours: '24',
+      })
+      .end(function (response) {
+        if (response.error) {
+          return reject(response.error);
+        }
+        return resolve(response.body);
+      });
   });
+}
 
-  req.headers({
-    'x-rapidapi-key': 'bb84525deemsh8f66346e9e95687p1de53ajsn4f356002ca42',
-    'x-rapidapi-host': 'weatherbit-v1-mashape.p.rapidapi.com',
-    useQueryString: true,
-  });
-
-  req.end(function (res) {
-    if (res.error) throw new Error(res.error);
-    let hourly = res.body.data;
-
-    final = hourly.filter((hour) => {
-      if (hour.precip > 0.24) {
-        return true;
-      }
-    });
-  });
-  return final;
-};
+let ff = getToken();
 
 // Add a plce
 // Route: /api
@@ -52,9 +46,25 @@ exports.addPlace1 = async (req, res, next) => {
 // Route: /api
 exports.getPlaces1 = async (req, res, next) => {
   try {
-    const places1 = await Place1.find();
-    test();
-    return res.status(200).json(final ? true : false);
+    // console.log(ff, 'ameshss');
+
+    const mainFunction = async () => {
+      const result = await getToken();
+      // console.log(result);
+      let hourly = result.data;
+
+      const final = hourly.filter((hour) => {
+        if (hour.precip > 0.4) {
+          return true;
+        }
+      });
+
+      return final.length;
+    };
+    let mm = await mainFunction();
+    // console.log(mm);
+
+    return res.status(200).json(mm ? true : false);
   } catch (err) {
     console.log(err);
     res.status(500);
