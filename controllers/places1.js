@@ -54,7 +54,7 @@ exports.getPlaces1 = async (req, res, next) => {
       let hourly = result.data;
 
       const final = hourly.filter((hour) => {
-        if (hour.precip > 0.9) {
+        if (hour.precip > 0.4) {
           return true;
         }
       });
